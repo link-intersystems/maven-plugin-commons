@@ -77,5 +77,30 @@
 		</dependencies>
 	</dependencyManagement>
 
-
+	<repositories>
+		<repository>
+			<id>link-intersystems-releases</id>
+			<layout>default</layout>
+			<name>Link Intersystem Releases</name>
+			<url>https://nexus.link-intersystems.com/repository/open-source-releases/</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>link-intersystems-snapshots</id>
+			<layout>default</layout>
+			<name>Link Intersystem Snapshots</name>
+			<url>https://nexus.link-intersystems.com/repository/open-source-snapshots/</url>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
 </project>
