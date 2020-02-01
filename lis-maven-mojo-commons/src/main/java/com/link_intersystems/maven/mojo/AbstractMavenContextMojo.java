@@ -1,7 +1,9 @@
-	package com.link_intersystems.maven.mojo;
+package com.link_intersystems.maven.mojo;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.maven.execution.MavenSession;
@@ -13,15 +15,24 @@ import org.apache.maven.plugin.PluginParameterExpressionEvaluator;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
 import org.apache.maven.settings.Server;
 import org.apache.maven.settings.Settings;
 import org.codehaus.plexus.component.configurator.expression.ExpressionEvaluator;
 import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.graph.Dependency;
+import org.eclipse.aether.graph.DependencyNode;
+import org.eclipse.aether.impl.ArtifactResolver;
 import org.eclipse.aether.repository.RemoteRepository;
+import org.eclipse.aether.resolution.ArtifactRequest;
+import org.eclipse.aether.resolution.ArtifactResolutionException;
+import org.eclipse.aether.resolution.ArtifactResult;
 
 public abstract class AbstractMavenContextMojo<T extends Goal<PARAMS>, PARAMS> extends AbstractMojo {
+
+	@Parameter(property = "project", readonly = true)
+	private MavenProject project;
 
 	/**
 	 * The entry point to Aether, i.e. the component doing all the work.
@@ -37,8 +48,8 @@ public abstract class AbstractMavenContextMojo<T extends Goal<PARAMS>, PARAMS> e
 	private RepositorySystemSession repoSession;
 
 	/**
-	 * The project's remote repositories to use for the resolution of plugins
-	 * and their dependencies.
+	 * The project's remote repositories to use for the resolution of plugins and
+	 * their dependencies.
 	 * 
 	 */
 	@Parameter(defaultValue = "${project.remotePluginRepositories}")
@@ -52,6 +63,9 @@ public abstract class AbstractMavenContextMojo<T extends Goal<PARAMS>, PARAMS> e
 	 */
 	@Parameter(property = "session")
 	private MavenSession mavenSession;
+
+	@Component
+	private ArtifactResolver artifactResolver;
 
 	/**
 	 * 
@@ -91,9 +105,9 @@ public abstract class AbstractMavenContextMojo<T extends Goal<PARAMS>, PARAMS> e
 	 *         {@link AbstractMavenContextMojo} is an instance of the execution
 	 *         parameter type than this {@link AbstractMavenContextMojo} is
 	 *         returned.
-	 * @throws IllegalStateException
-	 *             if the execution parameter object can not be resolved
-	 *             automatically. Please override and implement in this case.
+	 * @throws IllegalStateException if the execution parameter object can not be
+	 *                               resolved automatically. Please override and
+	 *                               implement in this case.
 	 */
 	protected PARAMS getExecutionParams() {
 		Class<PARAMS> paramsType = getTypeArgumentClass(1);
@@ -184,8 +198,26 @@ public abstract class AbstractMavenContextMojo<T extends Goal<PARAMS>, PARAMS> e
 			return server;
 		}
 
+		public List<ArtifactResult> resolveArtifacts(Collection<DependencyNode> nodes)
+				throws ArtifactResolutionException {
+			Collection<ArtifactRequest> requests = new ArrayList<>();
+
+			for (DependencyNode node : nodes) {
+				ArtifactRequest artifactRequest = new ArtifactRequest(node);
+				requests.add(artifactRequest);
+			}
+			List<ArtifactResult> artifactResults = artifactResolver.resolveArtifacts(getRepositorySystemSession(),
+					requests);
+			return artifactResults;
+		}
+
 		public String getTargetFolder() {
 			return targetFolder;
+		}
+
+		@Override
+		public MavenProject getMavenProject() {
+			return project;
 		}
 	}
 
