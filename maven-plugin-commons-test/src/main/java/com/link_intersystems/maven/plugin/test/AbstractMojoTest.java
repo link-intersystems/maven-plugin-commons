@@ -89,7 +89,8 @@ public class AbstractMojoTest {
 
 
         if (resource.endsWith(".zip")) {
-            throw new UnsupportedOperationException("Not implemented yet");
+            URL zipResource = classLoader.getResource(resource);
+            return new ZippedMavenTestProject(zipResource);
         } else {
             String pomResource = resource.endsWith("pom.xml") ? resource : resource + "/pom.xml";
             URL pomUrl = classLoader.getResource(pomResource);

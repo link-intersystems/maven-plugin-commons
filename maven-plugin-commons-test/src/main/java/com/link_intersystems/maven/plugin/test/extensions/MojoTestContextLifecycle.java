@@ -12,7 +12,7 @@ import java.util.Optional;
 /**
  * @author René Link {@literal <rene.link@link-intersystems.com>}
  */
-public class MojoTestContextLifecycle implements BeforeAllCallback, BeforeEachCallback, AfterEachCallback, AfterAllCallback {
+class MojoTestContextLifecycle implements BeforeAllCallback, BeforeEachCallback, AfterEachCallback, AfterAllCallback {
 
     static final ExtensionContext.Namespace NAMESPACE = ExtensionContext.Namespace.create(MojoTestContextLifecycle.class);
 
@@ -76,7 +76,7 @@ public class MojoTestContextLifecycle implements BeforeAllCallback, BeforeEachCa
             mojoTestContext.setUp(mavenTestProject);
 
         } catch (Exception e) {
-            throw new ParameterResolutionException("", e);
+            throw new ParameterResolutionException("Unable to setup " + MavenTestProject.class.getName(), e);
         }
         return mojoTestContext;
     }
