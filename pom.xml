@@ -9,7 +9,7 @@
     </parent>
 
     <groupId>com.link-intersystems.maven.plugins</groupId>
-    <artifactId>maven-plugin-extensions</artifactId>
+    <artifactId>maven-plugin-commons</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
@@ -17,8 +17,8 @@
 
     <modules>
         <module>maven-plugin-commons-test</module>
-        <module>maven-plugin-commons-test-plugins</module>
-        <module>maven-plugin-commons</module>
+        <module>maven-plugin-commons-test-tests</module>
+        <module>maven-mojo-commons</module>
     </modules>
 
 

@@ -9,14 +9,11 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>maven-plugin-commons-test</artifactId>
+    <artifactId>maven-plugin-commons-test-tests</artifactId>
+    <packaging>maven-plugin</packaging>
+
 
     <dependencies>
-        <dependency>
-            <groupId>com.link-intersystems.maven.plugins</groupId>
-            <artifactId>maven-mojo-commons</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
-        </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-plugin-api</artifactId>
@@ -41,30 +38,11 @@
             <groupId>org.codehaus.plexus</groupId>
             <artifactId>plexus-utils</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.apache.maven.plugin-testing</groupId>
-            <artifactId>maven-plugin-testing-harness</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.link-intersystems.commons</groupId>
-            <artifactId>lis-commons-lang</artifactId>
-        </dependency>
 
         <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.platform</groupId>
-            <artifactId>junit-platform-suite</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <scope>compile</scope>
+            <groupId>com.link-intersystems.maven.plugins</groupId>
+            <artifactId>maven-plugin-commons-test</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
 </project>
