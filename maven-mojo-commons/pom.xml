@@ -16,5 +16,9 @@
             <groupId>com.link-intersystems.commons</groupId>
             <artifactId>lis-commons-io</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.link-intersystems.commons</groupId>
+            <artifactId>lis-commons-test</artifactId>
+        </dependency>
     </dependencies>
 </project>

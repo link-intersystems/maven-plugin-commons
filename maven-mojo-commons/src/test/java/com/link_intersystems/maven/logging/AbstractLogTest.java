@@ -1,6 +1,5 @@
 package com.link_intersystems.maven.logging;
 
-import com.link_intersystems.maven.OutputAssertion;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -45,12 +44,11 @@ class AbstractLogTest {
 
     private AbstractLog log;
     private StringWriter sw;
-    private OutputAssertion outputAssertion;
 
     private DoPrint latestPrint;
 
     @BeforeEach
-    private void setUp() {
+    void setUp() {
         sw = new StringWriter();
         log = new AbstractLog() {
 
@@ -60,8 +58,6 @@ class AbstractLogTest {
             }
         };
 
-
-        outputAssertion = new OutputAssertion(sw.getBuffer());
     }
 
     @AfterEach

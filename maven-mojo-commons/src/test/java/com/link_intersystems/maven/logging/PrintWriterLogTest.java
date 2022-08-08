@@ -1,14 +1,11 @@
 package com.link_intersystems.maven.logging;
 
-import com.link_intersystems.maven.OutputAssertion;
-import org.apache.maven.plugin.logging.Log;
+import com.link_intersystems.test.io.ReaderAssertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.api.Test;
 
+import java.io.StringReader;
 import java.io.StringWriter;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 /**
  * @author René Link {@literal <rene.link@link-intersystems.com>}
@@ -17,76 +14,41 @@ class PrintWriterLogTest {
 
     private PrintWriterLog log;
     private StringWriter sw;
-    private OutputAssertion outputAssertion;
 
     @BeforeEach
     private void setUp() {
         sw = new StringWriter();
         log = new PrintWriterLog(sw);
-
-        outputAssertion = new OutputAssertion(sw.getBuffer());
     }
 
-    @ParameterizedTest
-    @ValueSource(strings = {"info", "debug", "error", "warn"})
-    public void log(String level) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        Method logMethod = Log.class.getDeclaredMethod(level, CharSequence.class);
-        String enableMethodName = "set" + level.substring(0, 1).toUpperCase() + level.substring(1) + "Enabled";
-        Method enableMethod = AbstractLog.class.getDeclaredMethod(enableMethodName, boolean.class);
+    @Test
+    public void log() {
+        log.setInfoEnabled(true);
+        log.info("Test");
 
-        enableMethod.invoke(log, false);
-        logMethod.invoke(log, "Test");
-        outputAssertion.assertNoLine();
-        outputAssertion.reset();
-
-
-        enableMethod.invoke(log, true);
-        logMethod.invoke(log, "Test");
-
-        outputAssertion.assertLine("[" + level + "] Test");
+        ReaderAssertions outputAssertions = new ReaderAssertions(new StringReader(sw.toString()));
+        outputAssertions.assertLine("[info] Test");
     }
 
-    @ParameterizedTest
-    @ValueSource(strings = {"info", "debug", "error", "warn"})
-    public void logException(String level) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        Method logMethod = Log.class.getDeclaredMethod(level, Throwable.class);
-        String enableMethodName = "set" + level.substring(0, 1).toUpperCase() + level.substring(1) + "Enabled";
-        Method enableMethod = AbstractLog.class.getDeclaredMethod(enableMethodName, boolean.class);
-
+    @Test
+    public void logException() {
+        log.setInfoEnabled(true);
         RuntimeException e = new RuntimeException();
-        enableMethod.invoke(log, false);
-        logMethod.invoke(log, e);
-        outputAssertion.assertNoLine();
-        outputAssertion.reset();
+        log.info(e);
 
-
-        enableMethod.invoke(log, true);
-        logMethod.invoke(log, e);
-
-        outputAssertion.assertLine("[" + level + "] java.lang.RuntimeException");
+        ReaderAssertions outputAssertions = new ReaderAssertions(new StringReader(sw.toString()));
+        outputAssertions.assertLine("[info] java.lang.RuntimeException");
     }
 
-    @ParameterizedTest
-    @ValueSource(strings = {"info", "debug", "error", "warn"})
-    public void logMessageWithException(String level) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        Method logMethod = Log.class.getDeclaredMethod(level, CharSequence.class, Throwable.class);
-        String enableMethodName = "set" + level.substring(0, 1).toUpperCase() + level.substring(1) + "Enabled";
-        Method enableMethod = AbstractLog.class.getDeclaredMethod(enableMethodName, boolean.class);
-
+    @Test
+    public void logMessageWithException() {
+        log.setInfoEnabled(true);
         RuntimeException e = new RuntimeException();
-        enableMethod.invoke(log, false);
-        logMethod.invoke(log, "Test", e);
-        outputAssertion.assertNoLine();
-        outputAssertion.reset();
+        log.info("Test", e);
 
-
-        enableMethod.invoke(log, true);
-        logMethod.invoke(log, "Test", e);
-
-        outputAssertion.assertLine("[" + level + "] Test");
-        outputAssertion.assertEmptyLine();
-        outputAssertion.assertLine("java.lang.RuntimeException");
+        ReaderAssertions outputAssertions = new ReaderAssertions(new StringReader(sw.toString()));
+        outputAssertions.assertLine("[info] Test");
+        outputAssertions.assertEmptyLine();
+        outputAssertions.assertLine("java.lang.RuntimeException");
     }
-
-
 }
