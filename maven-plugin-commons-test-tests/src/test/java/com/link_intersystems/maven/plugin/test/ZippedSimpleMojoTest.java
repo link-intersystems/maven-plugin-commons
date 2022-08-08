@@ -1,8 +1,6 @@
 package com.link_intersystems.maven.plugin.test;
 
 import com.link_intersystems.maven.plugin.test.extensions.MojoTest;
-import org.apache.maven.execution.MavenSession;
-import org.apache.maven.project.MavenProject;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -18,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 class ZippedSimpleMojoTest {
 
     @Test
-    void resolveMojo(@TestMojo(gaol = "goal") SimpleMojo mojo) {
+    void resolveMojo(@TestMojo(goal = "goal") SimpleMojo mojo) {
         assertNotNull(mojo, "Mojo should be resolved.");
     }
 

@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.PARAMETER)
 public @interface TestMojo {
 
-    String gaol();
+    String goal();
 
     boolean debugEnabled() default false;
 }

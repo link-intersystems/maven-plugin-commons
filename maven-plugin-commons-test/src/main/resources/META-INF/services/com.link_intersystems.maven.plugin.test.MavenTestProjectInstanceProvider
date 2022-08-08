@@ -1,0 +1,2 @@
+com.link_intersystems.maven.plugin.test.providers.ZippedMavenProjectInstanceProvider
+com.link_intersystems.maven.plugin.test.providers.DefaultMavenProjectInstanceProvider

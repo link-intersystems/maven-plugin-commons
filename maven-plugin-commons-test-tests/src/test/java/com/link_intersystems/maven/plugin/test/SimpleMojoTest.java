@@ -8,6 +8,8 @@ import org.apache.maven.project.MavenProject;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import java.io.File;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -19,21 +21,25 @@ class SimpleMojoTest {
 
     @MavenTestProject("com/link_intersystems/maven/plugin/test/simpleProject")
     @Test
-    void executeMojo(@TestMojo(gaol = "goal", debugEnabled = true) SimpleMojo mojo) throws MojoExecutionException, MojoFailureException {
+    void executeMojo(@TestMojo(goal = "goal", debugEnabled = true) SimpleMojo mojo) throws MojoExecutionException, MojoFailureException {
         assertNotNull(mojo, "Mojo should be resolved.");
         mojo.execute();
     }
 
     @MavenTestProject("com/link_intersystems/maven/plugin/test/simpleProject")
     @Test
-    void resolveMojoAndProject(@TestMojo(gaol = "goal") SimpleMojo mojo, MavenProject mavenProject) throws MojoExecutionException, MojoFailureException {
+    void resolveMojoAndProject(@TestMojo(goal = "goal") SimpleMojo mojo, MavenProject mavenProject) throws MojoExecutionException, MojoFailureException {
         executeMojo(mojo);
         assertSame(mavenProject, mojo.mavenProject, "Injected project should be the same as the MavenProject parameter.");
+
+        File basedir = mavenProject.getBasedir();
+        File readme = new File(basedir, "src/main/resources/README.md");
+        assertTrue(readme.exists());
     }
 
     @MavenTestProject("com/link_intersystems/maven/plugin/test/simpleProject")
     @Test
-    void resolveMojoProjectAndSession(@TestMojo(gaol = "goal") SimpleMojo mojo, MavenProject mavenProject, MavenSession mavenSession) throws MojoExecutionException, MojoFailureException {
+    void resolveMojoProjectAndSession(@TestMojo(goal = "goal") SimpleMojo mojo, MavenProject mavenProject, MavenSession mavenSession) throws MojoExecutionException, MojoFailureException {
         executeMojo(mojo);
         assertSame(mavenProject, mojo.mavenProject, "Injected project should be the same as the MavenProject parameter.");
     }

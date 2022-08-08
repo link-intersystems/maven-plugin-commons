@@ -20,10 +20,12 @@ import org.junit.jupiter.api.io.TempDir;
 import org.junit.platform.commons.util.AnnotationUtils;
 
 import java.io.File;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.ServiceLoader;
 
 /**
  * @author René Link {@literal <rene.link@link-intersystems.com>}
@@ -35,12 +37,13 @@ public class AbstractMojoTest {
     private MavenSession mavenSession;
     private MavenProject mavenProject;
     private Path repositoryPath;
+    private Path projectPath;
 
     @BeforeEach
     protected void setUp(@TempDir Path tmpDir) throws Exception {
         testCaseAdapter.setUp();
 
-        Path projectPath = tmpDir.resolve("project");
+        projectPath = tmpDir.resolve("project");
         repositoryPath = tmpDir.resolve(".m2/repository");
 
         mavenTestProject = createTestMavenProject();
@@ -70,6 +73,10 @@ public class AbstractMojoTest {
         testCaseAdapter.tearDown();
     }
 
+    public Path getProjectPath() {
+        return projectPath;
+    }
+
     public MavenProject getMavenProject() {
         return mavenProject;
     }
@@ -91,17 +98,37 @@ public class AbstractMojoTest {
     protected MavenTestProjectInstance createMavenTestProjectInstance(MavenTestProject annotation) {
         String resource = annotation.value();
 
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        URL resourceUrl;
 
-
-        if (resource.endsWith(".zip")) {
-            URL zipResource = classLoader.getResource(resource);
-            return new ZippedMavenTestProject(zipResource);
+        if (resource.startsWith("file://")) {
+            try {
+                resourceUrl = new URL(resource);
+            } catch (MalformedURLException e) {
+                throw new IllegalStateException("Unable to create maven test project for resource " + resource, e);
+            }
         } else {
-            String pomResource = resource.endsWith("pom.xml") ? resource : resource + "/pom.xml";
-            URL pomUrl = classLoader.getResource(pomResource);
-            return new ClasspathMavenTestProject(pomUrl);
+            if (resource.startsWith("/")) {
+                resource = resource.substring(1);
+            }
+            ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+            resourceUrl = classLoader.getResource(resource);
         }
+
+
+        MavenTestProjectInstanceProvider provider = findProvider(resourceUrl);
+        return provider.create(resourceUrl);
+    }
+
+    private MavenTestProjectInstanceProvider findProvider(URL mavenTestProjectResource) {
+        ServiceLoader<MavenTestProjectInstanceProvider> providers = ServiceLoader.load(MavenTestProjectInstanceProvider.class);
+
+        for (MavenTestProjectInstanceProvider provider : providers) {
+            if (provider.canHandle(mavenTestProjectResource)) {
+                return provider;
+            }
+        }
+        throw new IllegalStateException("No " + MavenTestProjectInstanceProvider.class.getName() + " found by ServiceLoader." +
+                " Make sure that a valid provider is registerd via META-INF/services/" + MavenTestProjectInstanceProvider.class.getName());
     }
 
     protected <T extends Mojo> T lookupConfiguredMojo(Class<T> mojoClass) throws Exception {

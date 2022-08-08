@@ -16,12 +16,12 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 class SimpleMojoSuperClassLevelTest extends AbstractSimpleMojoSuperClassLevelTest {
 
     @Test
-    void resolveMojo(@TestMojo(gaol = "goal") SimpleMojo mojo) {
+    void resolveMojo(@TestMojo(goal = "goal") SimpleMojo mojo) {
         assertNotNull(mojo, "Mojo should be resolved.");
     }
 
     @Test
-    void resolveMojoAndProject(@TestMojo(gaol = "goal") SimpleMojo mojo, MavenProject mavenProject) {
+    void resolveMojoAndProject(@TestMojo(goal = "goal") SimpleMojo mojo, MavenProject mavenProject) {
         resolveMojo(mojo);
         assertSame(mavenProject, mojo.mavenProject, "Injected project should be the same as the MavenProject parameter.");
     }

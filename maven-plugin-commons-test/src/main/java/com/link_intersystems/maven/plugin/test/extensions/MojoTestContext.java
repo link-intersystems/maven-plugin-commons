@@ -36,11 +36,14 @@ public class MojoTestContext extends AbstractMojoTest {
 
         tempDirectory = Files.createTempDirectory("MavenTestProject");
         setUp(tempDirectory);
+    }
 
+    public Path getBasepath() {
+        return getProjectPath();
     }
 
     public Mojo getMojo(TestMojo testMojo) throws Exception {
-        String gaol = testMojo.gaol();
+        String gaol = testMojo.goal();
         boolean debugEnabled = testMojo.debugEnabled();
         Mojo mojo = lookupConfiguredMojo(gaol, debugEnabled);
         PrintWriterLog printWriterLog = new PrintWriterLog(new PrintWriter(System.out));
