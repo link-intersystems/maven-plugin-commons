@@ -15,6 +15,6 @@ public class SimpleMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-
+        getLog().debug("TEST DEBUG");
     }
 }

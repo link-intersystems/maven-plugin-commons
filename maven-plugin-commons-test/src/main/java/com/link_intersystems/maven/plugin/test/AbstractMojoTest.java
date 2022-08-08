@@ -14,6 +14,7 @@ import org.apache.maven.project.ProjectBuildingResult;
 import org.apache.maven.repository.LocalArtifactRepository;
 import org.apache.maven.repository.internal.MavenRepositorySystemUtils;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.platform.commons.util.AnnotationUtils;
@@ -62,6 +63,11 @@ public class AbstractMojoTest {
 
         mavenProject = projectBuildingResult.getProject();
         mavenSession.setCurrentProject(mavenProject);
+    }
+
+    @AfterEach
+    protected void tearDown() throws Exception {
+        testCaseAdapter.tearDown();
     }
 
     public MavenProject getMavenProject() {
@@ -149,7 +155,11 @@ public class AbstractMojoTest {
         @Override
         public Mojo lookupConfiguredMojo(MavenProject project, String goal) throws Exception {
             return super.lookupConfiguredMojo(mavenSession, newMojoExecution(goal));
+        }
 
+        @Override
+        public void tearDown() throws Exception {
+            getContainer().dispose();
         }
     }
 }

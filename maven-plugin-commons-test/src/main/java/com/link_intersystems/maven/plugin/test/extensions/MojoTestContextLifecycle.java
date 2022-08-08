@@ -45,7 +45,7 @@ class MojoTestContextLifecycle implements BeforeAllCallback, BeforeEachCallback,
         after(context);
     }
 
-    private void after(ExtensionContext context) throws IOException {
+    private void after(ExtensionContext context) throws Exception {
         Optional<AnnotatedElement> element = context.getElement();
         if (element.isPresent()) {
             ExtensionContext.Store store = context.getStore(NAMESPACE);

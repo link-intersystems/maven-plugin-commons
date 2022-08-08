@@ -31,7 +31,7 @@ class MojoResolver implements ParameterResolver {
         }
         TestMojo testMojo = parameter.getAnnotation(TestMojo.class);
         try {
-            return mojoTestContext.getMojo(testMojo.gaol());
+            return mojoTestContext.getMojo(testMojo);
         } catch (Exception e) {
             throw new ParameterResolutionException("", e);
         }

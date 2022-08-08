@@ -13,4 +13,6 @@ import java.lang.annotation.Target;
 public @interface TestMojo {
 
     String gaol();
+
+    boolean debugEnabled() default false;
 }

@@ -1,11 +1,14 @@
 package com.link_intersystems.maven.plugin.test.extensions;
 
+import com.link_intersystems.maven.logging.PrintWriterLog;
 import com.link_intersystems.maven.plugin.test.AbstractMojoTest;
 import com.link_intersystems.maven.plugin.test.MavenTestProject;
+import com.link_intersystems.maven.plugin.test.TestMojo;
 import org.apache.maven.plugin.Mojo;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
@@ -36,11 +39,18 @@ public class MojoTestContext extends AbstractMojoTest {
 
     }
 
-    public Mojo getMojo(String goal) throws Exception {
-        return lookupConfiguredMojo(goal);
+    public Mojo getMojo(TestMojo testMojo) throws Exception {
+        String gaol = testMojo.gaol();
+        boolean debugEnabled = testMojo.debugEnabled();
+        Mojo mojo = lookupConfiguredMojo(gaol, debugEnabled);
+        PrintWriterLog printWriterLog = new PrintWriterLog(new PrintWriter(System.out));
+        printWriterLog.setDebugEnabled(testMojo.debugEnabled());
+        mojo.setLog(printWriterLog);
+        return mojo;
     }
 
-    public void tearDown() throws IOException {
+    public void tearDown() throws Exception {
+        super.tearDown();
         deleteAllFilesAndDirectories(tempDirectory);
     }
 
