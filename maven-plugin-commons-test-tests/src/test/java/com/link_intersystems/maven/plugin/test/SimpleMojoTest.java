@@ -17,16 +17,21 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 
 @ExtendWith(MojoTest.class)
+@MavenTestProject("com/link_intersystems/maven/plugin/test/simpleProject")
 class SimpleMojoTest {
 
-    @MavenTestProject("com/link_intersystems/maven/plugin/test/simpleProject")
+    @Test
+    void testPomInterpolation(@TestMojo(goal = "goal", debugEnabled = true) SimpleMojo mojo, MavenProject mavenProject) throws MojoExecutionException, MojoFailureException {
+        File basedir = mavenProject.getBasedir();
+        assertEquals(basedir.toString(), mojo.dir);
+    }
+
     @Test
     void executeMojo(@TestMojo(goal = "goal", debugEnabled = true) SimpleMojo mojo) throws MojoExecutionException, MojoFailureException {
         assertNotNull(mojo, "Mojo should be resolved.");
         mojo.execute();
     }
 
-    @MavenTestProject("com/link_intersystems/maven/plugin/test/simpleProject")
     @Test
     void resolveMojoAndProject(@TestMojo(goal = "goal") SimpleMojo mojo, MavenProject mavenProject) throws MojoExecutionException, MojoFailureException {
         executeMojo(mojo);
@@ -37,7 +42,6 @@ class SimpleMojoTest {
         assertTrue(readme.exists());
     }
 
-    @MavenTestProject("com/link_intersystems/maven/plugin/test/simpleProject")
     @Test
     void resolveMojoProjectAndSession(@TestMojo(goal = "goal") SimpleMojo mojo, MavenProject mavenProject, MavenSession mavenSession) throws MojoExecutionException, MojoFailureException {
         executeMojo(mojo);

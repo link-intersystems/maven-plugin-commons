@@ -13,6 +13,9 @@ public class SimpleMojo extends AbstractMojo {
     @Parameter(property = "project", readonly = true, required = true)
     MavenProject mavenProject;
 
+    @Parameter(defaultValue = "${project.basedir}")
+    String dir;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         getLog().debug("TEST DEBUG");
