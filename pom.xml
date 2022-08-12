@@ -1,5 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -10,7 +9,7 @@
 
     <groupId>com.link-intersystems.maven.plugins</groupId>
     <artifactId>maven-plugin-commons</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0</version>
     <packaging>pom</packaging>
 
     <name>Maven Plugin Commons</name>
@@ -25,7 +24,7 @@
     <properties>
         <mavenPluginToolsVersion>3.5.2</mavenPluginToolsVersion>
         <mavenVersion>3.2.5</mavenVersion>
-        <lis-commons.version>1.7.1-SNAPSHOT</lis-commons.version>
+        <lis-commons.version>1.7.1</lis-commons.version>
         <junit.jupiter.version>5.8.2</junit.jupiter.version>
         <mockito.version>4.4.0</mockito.version>
         <slf4j.version>1.7.36</slf4j.version>
@@ -76,13 +75,13 @@
             <dependency>
                 <groupId>com.link-intersystems.maven.plugins</groupId>
                 <artifactId>maven-plugin-commons-test</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
+                <version>1.0.0</version>
             </dependency>
 
             <dependency>
                 <groupId>com.link-intersystems.maven.plugins</groupId>
                 <artifactId>maven-mojo-commons</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
+                <version>1.0.0</version>
             </dependency>
 
             <dependency>
@@ -199,4 +198,8 @@
             </plugin>
         </plugins>
     </build>
+
+  <scm>
+    <tag>maven-plugin-commons-1.0.0</tag>
+  </scm>
 </project>
