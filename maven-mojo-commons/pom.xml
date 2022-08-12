@@ -20,5 +20,9 @@
             <groupId>com.link-intersystems.commons</groupId>
             <artifactId>lis-commons-test</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
     </dependencies>
 </project>
