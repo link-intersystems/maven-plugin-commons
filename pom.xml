@@ -9,7 +9,7 @@
 
     <groupId>com.link-intersystems.maven.plugins</groupId>
     <artifactId>maven-plugin-commons</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Maven Plugin Commons</name>
@@ -75,13 +75,13 @@
             <dependency>
                 <groupId>com.link-intersystems.maven.plugins</groupId>
                 <artifactId>maven-plugin-commons-test</artifactId>
-                <version>1.0.0</version>
+                <version>1.0.1-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.link-intersystems.maven.plugins</groupId>
                 <artifactId>maven-mojo-commons</artifactId>
-                <version>1.0.0</version>
+                <version>1.0.1-SNAPSHOT</version>
             </dependency>
 
             <dependency>
@@ -198,8 +198,4 @@
             </plugin>
         </plugins>
     </build>
-
-  <scm>
-    <tag>maven-plugin-commons-1.0.0</tag>
-  </scm>
 </project>
