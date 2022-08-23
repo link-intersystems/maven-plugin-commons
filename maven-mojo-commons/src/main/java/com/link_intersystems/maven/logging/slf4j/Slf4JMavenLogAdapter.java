@@ -17,10 +17,11 @@ import static java.util.Objects.requireNonNull;
 public class Slf4JMavenLogAdapter implements Logger {
 
     public static final Object[] EMPTY_ARGS = new Object[0];
+
     private Log log;
     private String name;
-
     private Level traceLevel = Level.off;
+
 
     public Slf4JMavenLogAdapter(Log log) {
         this(log, Slf4JMavenLogAdapter.class.getName());
