@@ -1,9 +1,13 @@
 package com.link_intersystems.maven.logging.slf4j;
 
+import com.link_intersystems.maven.logging.Level;
 import org.apache.maven.plugin.logging.Log;
 import org.slf4j.Logger;
 import org.slf4j.Marker;
 import org.slf4j.helpers.MessageFormatter;
+
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import static java.util.Objects.requireNonNull;
 
@@ -12,8 +16,11 @@ import static java.util.Objects.requireNonNull;
  */
 public class Slf4JMavenLogAdapter implements Logger {
 
+    public static final Object[] EMPTY_ARGS = new Object[0];
     private Log log;
     private String name;
+
+    private Level traceLevel = Level.off;
 
     public Slf4JMavenLogAdapter(Log log) {
         this(log, Slf4JMavenLogAdapter.class.getName());
@@ -22,6 +29,58 @@ public class Slf4JMavenLogAdapter implements Logger {
     public Slf4JMavenLogAdapter(Log log, String name) {
         this.log = requireNonNull(log);
         this.name = requireNonNull(name);
+    }
+
+    public void setTraceLevel(Level traceLevel) {
+        this.traceLevel = requireNonNull(traceLevel);
+    }
+
+    private void logInfo(String format, Object[] args) {
+        log(format, args, log::info, log::info);
+    }
+
+
+    private void logWarn(String format, Object[] args) {
+        log(format, args, log::warn, log::warn);
+    }
+
+    private void logDebug(String format, Object[] args) {
+        log(format, args, log::debug, log::debug);
+    }
+
+    private void logError(String format, Object[] args) {
+        log(format, args, log::error, log::error);
+    }
+
+    private void logTrace(String format, Object[] args) {
+        log(format, args, msg -> traceLevel.log(log, msg), (msg, t) -> traceLevel.log(log, msg, t));
+    }
+
+    private void log(String format, Object[] arg, Consumer<CharSequence> msgLogger, BiConsumer<CharSequence, Throwable> msgWithThrowable) {
+        Throwable throwable = extractThrowable(arg);
+        if (throwable != null) {
+            arg = trimmedCopy(arg);
+        }
+
+        String formattedMessage = MessageFormatter.arrayFormat(format, arg).getMessage();
+
+        if (throwable == null) {
+            msgLogger.accept(formattedMessage);
+        } else {
+            msgWithThrowable.accept(formattedMessage, throwable);
+        }
+    }
+
+    static final Throwable extractThrowable(Object[] argArray) {
+        if (argArray == null || argArray.length == 0) {
+            return null;
+        }
+
+        final Object lastEntry = argArray[argArray.length - 1];
+        if (lastEntry instanceof Throwable) {
+            return (Throwable) lastEntry;
+        }
+        return null;
     }
 
     private static Object[] trimmedCopy(Object[] argArray) {
@@ -34,17 +93,6 @@ public class Slf4JMavenLogAdapter implements Logger {
         return trimmed;
     }
 
-    private static final Throwable extractThrowable(Object[] argArray) {
-        if (argArray == null || argArray.length == 0) {
-            return null;
-        }
-
-        final Object lastEntry = argArray[argArray.length - 1];
-        if (lastEntry instanceof Throwable) {
-            return (Throwable) lastEntry;
-        }
-        return null;
-    }
 
     @Override
     public String getName() {
@@ -53,52 +101,62 @@ public class Slf4JMavenLogAdapter implements Logger {
 
     @Override
     public boolean isTraceEnabled() {
-        return false;
+        return traceLevel.isEnabled(log);
     }
 
     @Override
     public void trace(String msg) {
+        logTrace(msg, EMPTY_ARGS);
     }
 
     @Override
     public void trace(String format, Object arg) {
+        logTrace(format, new Object[]{arg});
     }
 
     @Override
     public void trace(String format, Object arg1, Object arg2) {
+        logTrace(format, new Object[]{arg1, arg2});
     }
 
     @Override
     public void trace(String format, Object... arguments) {
+        logTrace(format, arguments);
     }
 
     @Override
     public void trace(String msg, Throwable t) {
+        logTrace(msg, new Object[]{t});
     }
 
     @Override
     public boolean isTraceEnabled(Marker marker) {
-        return false;
+        return traceLevel.isEnabled(log);
     }
 
     @Override
     public void trace(Marker marker, String msg) {
+        logTrace(msg, EMPTY_ARGS);
     }
 
     @Override
     public void trace(Marker marker, String format, Object arg) {
+        logTrace(format, new Object[]{arg});
     }
 
     @Override
     public void trace(Marker marker, String format, Object arg1, Object arg2) {
+        logTrace(format, new Object[]{arg1, arg2});
     }
 
     @Override
     public void trace(Marker marker, String format, Object... argArray) {
+        logTrace(format, argArray);
     }
 
     @Override
     public void trace(Marker marker, String msg, Throwable t) {
+        logTrace(msg, new Object[]{t});
     }
 
     @Override
@@ -126,21 +184,6 @@ public class Slf4JMavenLogAdapter implements Logger {
             return;
         }
         logDebug(format, new Object[]{arg1, arg2});
-    }
-
-    private void logDebug(String format, Object[] arg1) {
-        Throwable throwable = extractThrowable(arg1);
-        if (throwable != null) {
-            arg1 = trimmedCopy(arg1);
-        }
-
-        String formattedMessage = MessageFormatter.arrayFormat(format, arg1).getMessage();
-
-        if (throwable == null) {
-            log.debug(formattedMessage);
-        } else {
-            log.debug(format, throwable);
-        }
     }
 
     @Override
@@ -213,20 +256,6 @@ public class Slf4JMavenLogAdapter implements Logger {
         logInfo(format, new Object[]{arg});
     }
 
-    private void logInfo(String format, Object[] arg) {
-        Throwable throwable = extractThrowable(arg);
-        if (throwable != null) {
-            arg = trimmedCopy(arg);
-        }
-
-        String formattedMessage = MessageFormatter.arrayFormat(format, arg).getMessage();
-
-        if (throwable == null) {
-            log.info(formattedMessage);
-        } else {
-            log.info(format, throwable);
-        }
-    }
 
     @Override
     public void info(String format, Object arg1, Object arg2) {
@@ -310,20 +339,6 @@ public class Slf4JMavenLogAdapter implements Logger {
         logWarn(format, new Object[]{arg});
     }
 
-    private void logWarn(String format, Object[] arg) {
-        Throwable throwable = extractThrowable(arg);
-        if (throwable != null) {
-            arg = trimmedCopy(arg);
-        }
-
-        String formattedMessage = MessageFormatter.arrayFormat(format, arg).getMessage();
-
-        if (throwable == null) {
-            log.warn(formattedMessage);
-        } else {
-            log.warn(format, throwable);
-        }
-    }
 
     @Override
     public void warn(String format, Object arg1, Object arg2) {
@@ -407,21 +422,6 @@ public class Slf4JMavenLogAdapter implements Logger {
             return;
         }
         logError(format, new Object[]{arg});
-    }
-
-    private void logError(String format, Object[] arg) {
-        Throwable throwable = extractThrowable(arg);
-        if (throwable != null) {
-            arg = trimmedCopy(arg);
-        }
-
-        String formattedMessage = MessageFormatter.arrayFormat(format, arg).getMessage();
-
-        if (throwable == null) {
-            log.error(formattedMessage);
-        } else {
-            log.error(format, throwable);
-        }
     }
 
     @Override

@@ -6,6 +6,28 @@ import org.apache.maven.plugin.logging.Log;
  * @author René Link {@literal <rene.link@link-intersystems.com>}
  */
 public enum Level {
+    off {
+        @Override
+        public boolean isEnabled(Log log) {
+            return false;
+        }
+
+        @Override
+        public void setEnabled(AbstractLog log, boolean enabled) {
+        }
+
+        @Override
+        public void log(Log log, CharSequence message) {
+        }
+
+        @Override
+        public void log(Log log, Throwable throwable) {
+        }
+
+        @Override
+        public void log(Log log, CharSequence message, Throwable throwable) {
+        }
+    },
     info {
         @Override
         public boolean isEnabled(Log log) {

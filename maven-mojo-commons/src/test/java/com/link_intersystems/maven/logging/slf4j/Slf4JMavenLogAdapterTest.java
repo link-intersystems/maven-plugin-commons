@@ -1,5 +1,6 @@
 package com.link_intersystems.maven.logging.slf4j;
 
+import com.link_intersystems.maven.logging.Level;
 import org.apache.maven.plugin.logging.Log;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,7 +24,7 @@ import static org.mockito.Mockito.*;
 class Slf4JMavenLogAdapterTest {
 
     private Log mavenLog;
-    private Logger logger;
+    private Slf4JMavenLogAdapter logger;
     private Marker marker;
 
     public static List<LoggerInvocation> getInvocations() {
@@ -107,6 +108,26 @@ class Slf4JMavenLogAdapterTest {
         assertFalse(logger.isTraceEnabled(marker));
     }
 
+    @Test
+    void errorWithThrowableInArgs(){
+        when(mavenLog.isErrorEnabled()).thenReturn(true);
+
+        RuntimeException e = new RuntimeException();
+        logger.error("Hello {}", new Object[]{"World", e});
+
+        verify(mavenLog, timeout(1)).error("Hello World", e);
+    }
+
+    @Test
+    void routeTraceToInfo(){
+        logger.setTraceLevel(Level.info);
+
+        RuntimeException e = new RuntimeException();
+        logger.trace("Hello {}", new Object[]{"World", e});
+
+        verify(mavenLog, timeout(1)).info("Hello World", e);
+    }
+
     @ParameterizedTest
     @MethodSource("getInvocations")
     void log(LoggerInvocation loggerInvocation) {
@@ -183,6 +204,10 @@ class Slf4JMavenLogAdapterTest {
             this.marker = marker;
             this.message = message;
             this.args = args;
+
+            if(t == null){
+                t = Slf4JMavenLogAdapter.extractThrowable(args);
+            }
             this.t = t;
         }
 
@@ -191,6 +216,7 @@ class Slf4JMavenLogAdapterTest {
             return "LoggerInvocation{" +
                     "expectedMessage='" + expectedMessage + '\'' +
                     ", level='" + level + '\'' +
+                    ", args='" + args.length + '\'' +
                     ", throwable='" + (t != null) + '\'' +
                     '}';
         }

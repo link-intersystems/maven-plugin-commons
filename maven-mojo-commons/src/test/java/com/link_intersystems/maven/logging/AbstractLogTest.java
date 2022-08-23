@@ -6,7 +6,9 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -66,7 +68,9 @@ class AbstractLogTest {
     }
 
     public static Stream<Level> levels() {
-        return Arrays.stream(Level.values());
+        List<Level> levels = new ArrayList<>(Arrays.asList(Level.values()));
+        levels.remove(Level.off);
+        return levels.stream();
     }
 
     @ParameterizedTest
