@@ -55,71 +55,83 @@ public abstract class AbstractLog implements Log {
     }
 
     public void debug(CharSequence content) {
-        print(debug, content);
+        logLevel(debug, content);
     }
 
     public void debug(CharSequence content, Throwable error) {
-        print(debug, content, error);
+        logLevel(debug, content, error);
     }
 
     public void debug(Throwable error) {
-        print(debug, error);
+        logLevel(debug, error);
     }
 
     public void info(CharSequence content) {
-        print(info, content);
+        logLevel(info, content);
     }
 
     public void info(CharSequence content, Throwable error) {
-        print(info, content, error);
+        logLevel(info, content, error);
     }
 
     public void info(Throwable error) {
-        print(info, error);
+        logLevel(info, error);
     }
 
     public void warn(CharSequence content) {
-        print(warn, content);
+        logLevel(warn, content);
     }
 
     public void warn(CharSequence content, Throwable error) {
-        print(warn, content, error);
+        logLevel(warn, content, error);
     }
 
     public void warn(Throwable error) {
-        print(warn, error);
+        logLevel(warn, error);
     }
 
     public void error(CharSequence content) {
-        print(error, content);
+        logLevel(error, content);
     }
 
     public void error(CharSequence content, Throwable throwable) {
-        print(error, content, throwable);
+        logLevel(error, content, throwable);
     }
 
     public void error(Throwable throwable) {
-        print(error, throwable);
+        logLevel(error, throwable);
     }
 
 
-    private void print(Level level, CharSequence content) {
-        print(level, ofNullable(content), empty());
+    private void logLevel(Level level, CharSequence content) {
+        logLevel(level, ofNullable(content), empty());
     }
 
-    private void print(Level level, Throwable error) {
-        print(level, empty(), ofNullable(error));
+    private void logLevel(Level level, Throwable error) {
+        logLevel(level, empty(), ofNullable(error));
     }
 
-    private void print(Level level, CharSequence content, Throwable error) {
-        print(level, ofNullable(content), ofNullable(error));
+    private void logLevel(Level level, CharSequence content, Throwable error) {
+        logLevel(level, ofNullable(content), ofNullable(error));
     }
 
-    protected void print(Level level, Optional<CharSequence> content, Optional<Throwable> error) {
+    protected void logLevel(Level level, Optional<CharSequence> content, Optional<Throwable> error) {
         if (level.isEnabled(this)) {
-            doPrint(level, content, error);
+            if (content.isPresent()) {
+                if (error.isPresent()) {
+                    doLogLevel(level, content.get(), error.get());
+                } else {
+                    doLogLevel(level, content.get());
+                }
+            } else if (error.isPresent()) {
+                doLogLevel(level, error.get());
+            }
         }
     }
 
-    protected abstract void doPrint(Level level, Optional<CharSequence> content, Optional<Throwable> error);
+    protected abstract void doLogLevel(Level level, CharSequence content);
+
+    protected abstract void doLogLevel(Level level, CharSequence content, Throwable error);
+
+    protected abstract void doLogLevel(Level level, Throwable error);
 }

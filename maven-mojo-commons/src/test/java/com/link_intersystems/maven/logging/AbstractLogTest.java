@@ -9,7 +9,6 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -20,12 +19,12 @@ import static org.junit.jupiter.api.Assertions.assertNull;
  */
 class AbstractLogTest {
 
-    private static class DoPrint {
+    private static class LogEntry {
         private Level level;
-        private Optional<CharSequence> content;
-        private Optional<Throwable> error;
+        private CharSequence content;
+        private Throwable error;
 
-        public DoPrint(Level level, Optional<CharSequence> content, Optional<Throwable> error) {
+        public LogEntry(Level level, CharSequence content, Throwable error) {
             this.level = level;
             this.content = content;
             this.error = error;
@@ -36,18 +35,18 @@ class AbstractLogTest {
         }
 
         public void assertContent(String expectedContent) {
-            assertEquals(expectedContent, content.orElse(null));
+            assertEquals(expectedContent, content);
         }
 
         public void assertThrowable(Throwable expectedThrowable) {
-            assertEquals(expectedThrowable, error.orElse(null));
+            assertEquals(expectedThrowable, error);
         }
     }
 
     private AbstractLog log;
     private StringWriter sw;
 
-    private DoPrint latestPrint;
+    private LogEntry latestLogEntry;
 
     @BeforeEach
     void setUp() {
@@ -55,8 +54,18 @@ class AbstractLogTest {
         log = new AbstractLog() {
 
             @Override
-            protected void doPrint(Level level, Optional<CharSequence> content, Optional<Throwable> error) {
-                latestPrint = new DoPrint(level, content, error);
+            protected void doLogLevel(Level level, CharSequence content) {
+                latestLogEntry =new LogEntry(level, content, null);
+            }
+
+            @Override
+            protected void doLogLevel(Level level, CharSequence content, Throwable error) {
+                latestLogEntry =new LogEntry(level, content, error);
+            }
+
+            @Override
+            protected void doLogLevel(Level level, Throwable error) {
+                latestLogEntry =new LogEntry(level, null, error);
             }
         };
 
@@ -64,7 +73,7 @@ class AbstractLogTest {
 
     @AfterEach
     void tearDown() {
-        latestPrint = null;
+        latestLogEntry = null;
     }
 
     public static Stream<Level> levels() {
@@ -77,13 +86,13 @@ class AbstractLogTest {
     @MethodSource("levels")
     public void log(Level level) {
         level.setEnabled(log, false);
-        assertNull(latestPrint);
+        assertNull(latestLogEntry);
 
         level.setEnabled(log, true);
         level.log(log, "Test");
 
-        latestPrint.assertLevel(level);
-        latestPrint.assertContent("Test");
+        latestLogEntry.assertLevel(level);
+        latestLogEntry.assertContent("Test");
     }
 
     @ParameterizedTest
@@ -93,14 +102,14 @@ class AbstractLogTest {
         level.setEnabled(log, false);
 
         level.log(log, e);
-        assertNull(latestPrint);
+        assertNull(latestLogEntry);
 
 
         level.setEnabled(log, true);
         level.log(log, e);
 
-        latestPrint.assertLevel(level);
-        latestPrint.assertThrowable(e);
+        latestLogEntry.assertLevel(level);
+        latestLogEntry.assertThrowable(e);
 
     }
 
@@ -110,15 +119,15 @@ class AbstractLogTest {
         RuntimeException e = new RuntimeException();
         level.setEnabled(log, false);
         level.log(log, e);
-        assertNull(latestPrint);
+        assertNull(latestLogEntry);
 
 
         level.setEnabled(log, true);
         level.log(log, "Test", e);
 
-        latestPrint.assertLevel(level);
-        latestPrint.assertContent("Test");
-        latestPrint.assertThrowable(e);
+        latestLogEntry.assertLevel(level);
+        latestLogEntry.assertContent("Test");
+        latestLogEntry.assertThrowable(e);
     }
 
 
