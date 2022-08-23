@@ -17,6 +17,26 @@ public class PrintWriterLog extends AbstractLog {
     }
 
     @Override
+    public void setDebugEnabled(boolean debugEnabled) {
+        super.setDebugEnabled(debugEnabled);
+    }
+
+    @Override
+    public void setErrorEnabled(boolean errorEnabled) {
+        super.setErrorEnabled(errorEnabled);
+    }
+
+    @Override
+    public void setInfoEnabled(boolean infoEnabled) {
+        super.setInfoEnabled(infoEnabled);
+    }
+
+    @Override
+    public void setWarnEnabled(boolean warnEnabled) {
+        super.setWarnEnabled(warnEnabled);
+    }
+
+    @Override
     protected void doLogLevel(Level level, CharSequence content) {
         printWriter.print("[" + level.name() + "] ");
 

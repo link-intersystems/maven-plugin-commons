@@ -10,23 +10,42 @@ import static java.util.Objects.requireNonNull;
 public class FilterLog extends AbstractLog {
 
     private Log log;
+    private Level level = Level.info;
 
     public FilterLog(Log log) {
         this.log = requireNonNull(log);
     }
 
+    public void setLevel(Level level) {
+        this.level = requireNonNull(level);
+
+        for (Level aLevel : Level.values()) {
+            aLevel.setEnabled(this, level.contains(aLevel));
+        }
+    }
+
+    public Level getLevel() {
+        return level;
+    }
+
     @Override
     protected void doLogLevel(Level level, CharSequence content) {
-        level.log(log, content);
+        if (this.level.contains(level)) {
+            level.log(log, content);
+        }
     }
 
     @Override
     protected void doLogLevel(Level level, CharSequence content, Throwable error) {
-        level.log(log, content, error);
+        if (this.level.contains(level)) {
+            level.log(log, content, error);
+        }
     }
 
     @Override
     protected void doLogLevel(Level level, Throwable error) {
-        level.log(log, error);
+        if (this.level.contains(level)) {
+            level.log(log, error);
+        }
     }
 }

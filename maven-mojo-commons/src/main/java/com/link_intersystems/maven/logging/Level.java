@@ -2,6 +2,9 @@ package com.link_intersystems.maven.logging;
 
 import org.apache.maven.plugin.logging.Log;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * @author René Link {@literal <rene.link@link-intersystems.com>}
  */
@@ -27,31 +30,41 @@ public enum Level {
         @Override
         public void log(Log log, CharSequence message, Throwable throwable) {
         }
+
+        @Override
+        public boolean contains(Level level) {
+            return false;
+        }
     },
-    info {
+    error {
         @Override
         public boolean isEnabled(Log log) {
-            return log.isInfoEnabled();
+            return log.isErrorEnabled();
         }
 
         @Override
         public void setEnabled(AbstractLog log, boolean enabled) {
-            log.setInfoEnabled(enabled);
+            log.setErrorEnabled(enabled);
         }
 
         @Override
         public void log(Log log, CharSequence message) {
-            log.info(message);
+            log.error(message);
         }
 
         @Override
         public void log(Log log, Throwable throwable) {
-            log.info(throwable);
+            log.error(throwable);
         }
 
         @Override
         public void log(Log log, CharSequence message, Throwable throwable) {
-            log.info(message, throwable);
+            log.error(message, throwable);
+        }
+
+        @Override
+        public boolean contains(Level level) {
+            return error.equals(level);
         }
     },
     warn {
@@ -80,31 +93,44 @@ public enum Level {
         public void log(Log log, CharSequence message, Throwable throwable) {
             log.warn(message, throwable);
         }
+
+        @Override
+        public boolean contains(Level level) {
+            return warn.equals(level) || error.contains(level);
+        }
     },
-    error {
+
+    info {
+        private List<Level> containedLevels = Arrays.asList();
+
         @Override
         public boolean isEnabled(Log log) {
-            return log.isErrorEnabled();
+            return log.isInfoEnabled();
         }
 
         @Override
         public void setEnabled(AbstractLog log, boolean enabled) {
-            log.setErrorEnabled(enabled);
+            log.setInfoEnabled(enabled);
         }
 
         @Override
         public void log(Log log, CharSequence message) {
-            log.error(message);
+            log.info(message);
         }
 
         @Override
         public void log(Log log, Throwable throwable) {
-            log.error(throwable);
+            log.info(throwable);
         }
 
         @Override
         public void log(Log log, CharSequence message, Throwable throwable) {
-            log.error(message, throwable);
+            log.info(message, throwable);
+        }
+
+        @Override
+        public boolean contains(Level level) {
+            return info.equals(level) || warn.contains(level);
         }
     },
     debug {
@@ -133,6 +159,11 @@ public enum Level {
         public void log(Log log, CharSequence message, Throwable throwable) {
             log.debug(message, throwable);
         }
+
+        @Override
+        public boolean contains(Level level) {
+            return debug.equals(level) || info.contains(level);
+        }
     };
 
     public abstract boolean isEnabled(Log log);
@@ -145,4 +176,5 @@ public enum Level {
 
     public abstract void log(Log log, CharSequence message, Throwable throwable);
 
+    public abstract boolean contains(Level level);
 }

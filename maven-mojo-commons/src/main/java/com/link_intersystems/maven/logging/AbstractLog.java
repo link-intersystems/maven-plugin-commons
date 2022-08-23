@@ -38,19 +38,19 @@ public abstract class AbstractLog implements Log {
         return errorEnabled;
     }
 
-    public void setDebugEnabled(boolean debugEnabled) {
+    protected void setDebugEnabled(boolean debugEnabled) {
         this.debugEnabled = debugEnabled;
     }
 
-    public void setInfoEnabled(boolean infoEnabled) {
+    protected void setInfoEnabled(boolean infoEnabled) {
         this.infoEnabled = infoEnabled;
     }
 
-    public void setWarnEnabled(boolean warnEnabled) {
+    protected void setWarnEnabled(boolean warnEnabled) {
         this.warnEnabled = warnEnabled;
     }
 
-    public void setErrorEnabled(boolean errorEnabled) {
+    protected void setErrorEnabled(boolean errorEnabled) {
         this.errorEnabled = errorEnabled;
     }
 
