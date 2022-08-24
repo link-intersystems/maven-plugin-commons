@@ -7,117 +7,50 @@ import static java.util.Objects.requireNonNull;
 /**
  * @author René Link {@literal <rene.link@link-intersystems.com>}
  */
-public class ConcurrentLog implements Log {
+public class ConcurrentLog extends AbstractLog {
 
     private Log log;
+    private Object synchronizationMonitor;
 
     public ConcurrentLog(Log log) {
         this.log = requireNonNull(log);
+        setSynchronizationMonitor(log);
     }
 
-    @Override
-    public boolean isDebugEnabled() {
-        return log.isDebugEnabled();
+    /**
+     * The monitor object to use for synchronization. The default is the {@link Log} that
+     * this {@link ConcurrentLog} was constructed with.
+     */
+    public void setSynchronizationMonitor(Object synchronizationMonitor) {
+        this.synchronizationMonitor = requireNonNull(synchronizationMonitor);
     }
 
+
     @Override
-    public void debug(CharSequence content) {
-        synchronized (log) {
-            log.debug(content);
+    protected void logLevel(Level level, CharSequence content) {
+        synchronized (synchronizationMonitor) {
+            level.log(log, content);
         }
     }
 
     @Override
-    public void debug(CharSequence content, Throwable error) {
-        synchronized (log) {
-            log.debug(content, error);
+    protected void logLevel(Level level, CharSequence content, Throwable error) {
+        synchronized (synchronizationMonitor) {
+            level.log(log, content, error);
         }
     }
 
     @Override
-    public void debug(Throwable error) {
-        synchronized (log) {
-            log.debug(error);
+    protected void logLevel(Level level, Throwable error) {
+        synchronized (synchronizationMonitor) {
+            level.log(log, error);
         }
     }
 
     @Override
-    public boolean isInfoEnabled() {
-        synchronized (log) {
-            return log.isInfoEnabled();
-        }
-    }
-
-    @Override
-    public void info(CharSequence content) {
-        synchronized (log) {
-            log.info(content);
-        }
-    }
-
-    @Override
-    public void info(CharSequence content, Throwable error) {
-        synchronized (log) {
-            log.info(content, error);
-        }
-    }
-
-    @Override
-    public void info(Throwable error) {
-        synchronized (log) {
-            log.info(error);
-        }
-    }
-
-    @Override
-    public boolean isWarnEnabled() {
-        return log.isWarnEnabled();
-    }
-
-    @Override
-    public void warn(CharSequence content) {
-        synchronized (log) {
-            log.warn(content);
-        }
-    }
-
-    @Override
-    public void warn(CharSequence content, Throwable error) {
-        synchronized (log) {
-            log.warn(content, error);
-        }
-    }
-
-    @Override
-    public void warn(Throwable error) {
-        synchronized (log) {
-            log.warn(error);
-        }
-    }
-
-    @Override
-    public boolean isErrorEnabled() {
-        return log.isErrorEnabled();
-    }
-
-    @Override
-    public void error(CharSequence content) {
-        synchronized (log) {
-            log.error(content);
-        }
-    }
-
-    @Override
-    public void error(CharSequence content, Throwable error) {
-        synchronized (log) {
-            log.error(content, error);
-        }
-    }
-
-    @Override
-    public void error(Throwable error) {
-        synchronized (log) {
-            log.error(error);
+    protected boolean isLevelEnabled(Level level) {
+        synchronized (synchronizationMonitor) {
+            return level.isEnabled(log);
         }
     }
 }

@@ -8,7 +8,7 @@ import static java.util.Objects.requireNonNull;
 /**
  * @author René Link {@literal <rene.link@link-intersystems.com>}
  */
-public class PrintWriterLog extends AbstractLog {
+public class PrintWriterLog extends AbstractCustomEnablementLog {
 
     private PrintWriter printWriter;
 
@@ -37,7 +37,7 @@ public class PrintWriterLog extends AbstractLog {
     }
 
     @Override
-    protected void doLogLevel(Level level, CharSequence content) {
+    protected void logLevel(Level level, CharSequence content) {
         printWriter.print("[" + level.name() + "] ");
 
         printWriter.println(content);
@@ -45,7 +45,7 @@ public class PrintWriterLog extends AbstractLog {
         printWriter.flush();
     }
 
-    protected void doLogLevel(Level level, CharSequence content, Throwable error) {
+    protected void logLevel(Level level, CharSequence content, Throwable error) {
         printWriter.print("[" + level.name() + "] ");
 
         printWriter.println(content);
@@ -56,7 +56,7 @@ public class PrintWriterLog extends AbstractLog {
     }
 
     @Override
-    protected void doLogLevel(Level level, Throwable error) {
+    protected void logLevel(Level level, Throwable error) {
         printWriter.print("[" + level.name() + "] ");
 
         error.printStackTrace(printWriter);

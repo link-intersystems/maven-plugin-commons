@@ -9,8 +9,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 /**
  * @author René Link {@literal <rene.link@link-intersystems.com>}
@@ -29,12 +28,14 @@ class ThreadAwareLogTest {
             return thread;
         });
 
-        log = Mockito.mock(Log.class);
+        log = mock(Log.class);
         threadAwareLog = new ThreadAwareLog(log);
     }
 
     @Test
     void info() throws ExecutionException, InterruptedException {
+        doReturn(true).when(log).isInfoEnabled();
+
         executorService.submit(() -> {
             threadAwareLog.info("Hello");
         }).get();
@@ -44,6 +45,8 @@ class ThreadAwareLogTest {
 
     @Test
     void debug() throws ExecutionException, InterruptedException {
+        doReturn(true).when(log).isDebugEnabled();
+
         executorService.submit(() -> {
             threadAwareLog.debug("Hello");
         }).get();
@@ -53,6 +56,8 @@ class ThreadAwareLogTest {
 
     @Test
     void error() throws ExecutionException, InterruptedException {
+        doReturn(true).when(log).isErrorEnabled();
+
         executorService.submit(() -> {
             threadAwareLog.error("Hello");
         }).get();
@@ -62,6 +67,8 @@ class ThreadAwareLogTest {
 
     @Test
     void warn() throws ExecutionException, InterruptedException {
+        doReturn(true).when(log).isWarnEnabled();
+
         executorService.submit(() -> {
             threadAwareLog.warn("Hello");
         }).get();

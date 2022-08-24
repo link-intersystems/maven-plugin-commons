@@ -2,136 +2,105 @@ package com.link_intersystems.maven.logging;
 
 import org.apache.maven.plugin.logging.Log;
 
-import java.util.Optional;
-
 import static com.link_intersystems.maven.logging.Level.*;
-import static java.util.Optional.empty;
-import static java.util.Optional.ofNullable;
 
 /**
  * @author René Link {@literal <rene.link@link-intersystems.com>}
  */
 public abstract class AbstractLog implements Log {
 
-    private boolean debugEnabled = false;
-    private boolean infoEnabled = true;
-    private boolean warnEnabled = true;
-    private boolean errorEnabled = true;
+    protected abstract void logLevel(Level level, CharSequence content);
+
+    protected abstract void logLevel(Level level, CharSequence content, Throwable error);
+
+    protected abstract void logLevel(Level level, Throwable error);
+
+    protected void tryLogLevel(Level level, CharSequence content) {
+        if (isLevelEnabled(level)) {
+            logLevel(level, content);
+        }
+    }
+
+    protected void tryLogLevel(Level level, CharSequence content, Throwable error) {
+        if (isLevelEnabled(level)) {
+            logLevel(level, content, error);
+        }
+    }
+
+    protected void tryLogLevel(Level level, Throwable error) {
+        if (isLevelEnabled(level)) {
+            logLevel(level, error);
+        }
+    }
+
+    protected abstract boolean isLevelEnabled(Level level);
 
     @Override
     public boolean isDebugEnabled() {
-        return debugEnabled;
+        return isLevelEnabled(debug);
     }
 
     @Override
     public boolean isInfoEnabled() {
-        return infoEnabled;
+        return isLevelEnabled(info);
     }
 
     @Override
     public boolean isWarnEnabled() {
-        return warnEnabled;
+        return isLevelEnabled(warn);
     }
 
     @Override
     public boolean isErrorEnabled() {
-        return errorEnabled;
-    }
-
-    protected void setDebugEnabled(boolean debugEnabled) {
-        this.debugEnabled = debugEnabled;
-    }
-
-    protected void setInfoEnabled(boolean infoEnabled) {
-        this.infoEnabled = infoEnabled;
-    }
-
-    protected void setWarnEnabled(boolean warnEnabled) {
-        this.warnEnabled = warnEnabled;
-    }
-
-    protected void setErrorEnabled(boolean errorEnabled) {
-        this.errorEnabled = errorEnabled;
+        return isLevelEnabled(error);
     }
 
     public void debug(CharSequence content) {
-        logLevel(debug, content);
+        tryLogLevel(debug, content);
     }
 
     public void debug(CharSequence content, Throwable error) {
-        logLevel(debug, content, error);
+        tryLogLevel(debug, content, error);
     }
 
     public void debug(Throwable error) {
-        logLevel(debug, error);
+        tryLogLevel(debug, error);
     }
 
     public void info(CharSequence content) {
-        logLevel(info, content);
+        tryLogLevel(info, content);
     }
 
     public void info(CharSequence content, Throwable error) {
-        logLevel(info, content, error);
+        tryLogLevel(info, content, error);
     }
 
     public void info(Throwable error) {
-        logLevel(info, error);
+        tryLogLevel(info, error);
     }
 
     public void warn(CharSequence content) {
-        logLevel(warn, content);
+        tryLogLevel(warn, content);
     }
 
     public void warn(CharSequence content, Throwable error) {
-        logLevel(warn, content, error);
+        tryLogLevel(warn, content, error);
     }
 
     public void warn(Throwable error) {
-        logLevel(warn, error);
+        tryLogLevel(warn, error);
     }
 
     public void error(CharSequence content) {
-        logLevel(error, content);
+        tryLogLevel(error, content);
     }
 
     public void error(CharSequence content, Throwable throwable) {
-        logLevel(error, content, throwable);
+        tryLogLevel(error, content, throwable);
     }
 
     public void error(Throwable throwable) {
-        logLevel(error, throwable);
+        tryLogLevel(error, throwable);
     }
 
-
-    private void logLevel(Level level, CharSequence content) {
-        logLevel(level, ofNullable(content), empty());
-    }
-
-    private void logLevel(Level level, Throwable error) {
-        logLevel(level, empty(), ofNullable(error));
-    }
-
-    private void logLevel(Level level, CharSequence content, Throwable error) {
-        logLevel(level, ofNullable(content), ofNullable(error));
-    }
-
-    protected void logLevel(Level level, Optional<CharSequence> content, Optional<Throwable> error) {
-        if (level.isEnabled(this)) {
-            if (content.isPresent()) {
-                if (error.isPresent()) {
-                    doLogLevel(level, content.get(), error.get());
-                } else {
-                    doLogLevel(level, content.get());
-                }
-            } else if (error.isPresent()) {
-                doLogLevel(level, error.get());
-            }
-        }
-    }
-
-    protected abstract void doLogLevel(Level level, CharSequence content);
-
-    protected abstract void doLogLevel(Level level, CharSequence content, Throwable error);
-
-    protected abstract void doLogLevel(Level level, Throwable error);
 }

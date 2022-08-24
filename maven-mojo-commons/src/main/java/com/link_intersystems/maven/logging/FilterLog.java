@@ -7,45 +7,21 @@ import static java.util.Objects.requireNonNull;
 /**
  * @author René Link {@literal <rene.link@link-intersystems.com>}
  */
-public class FilterLog extends AbstractLog {
-
-    private Log log;
+public class FilterLog extends DelegatingLog {
     private Level level = Level.info;
 
     public FilterLog(Log log) {
-        this.log = requireNonNull(log);
+        super(log);
     }
 
     public void setLevel(Level level) {
         this.level = requireNonNull(level);
-
-        for (Level aLevel : Level.values()) {
-            aLevel.setEnabled(this, level.contains(aLevel));
-        }
-    }
-
-    public Level getLevel() {
-        return level;
     }
 
     @Override
-    protected void doLogLevel(Level level, CharSequence content) {
-        if (this.level.contains(level)) {
-            level.log(log, content);
-        }
+    protected boolean isLevelEnabled(Level level) {
+        return this.level.contains(level);
     }
 
-    @Override
-    protected void doLogLevel(Level level, CharSequence content, Throwable error) {
-        if (this.level.contains(level)) {
-            level.log(log, content, error);
-        }
-    }
 
-    @Override
-    protected void doLogLevel(Level level, Throwable error) {
-        if (this.level.contains(level)) {
-            level.log(log, error);
-        }
-    }
 }

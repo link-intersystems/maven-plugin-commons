@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.Mockito.*;
 
 /**
  * @author René Link {@literal <rene.link@link-intersystems.com>}
@@ -51,30 +51,23 @@ class AbstractLogTest {
     @BeforeEach
     void setUp() {
         sw = new StringWriter();
-        log = new AbstractLog() {
-
-            @Override
-            protected void doLogLevel(Level level, CharSequence content) {
-                latestLogEntry =new LogEntry(level, content, null);
-            }
-
-            @Override
-            protected void doLogLevel(Level level, CharSequence content, Throwable error) {
-                latestLogEntry =new LogEntry(level, content, error);
-            }
-
-            @Override
-            protected void doLogLevel(Level level, Throwable error) {
-                latestLogEntry =new LogEntry(level, null, error);
-            }
-        };
-
+        log = spy(AbstractLog.class);
     }
 
     @AfterEach
     void tearDown() {
         latestLogEntry = null;
     }
+
+
+    private void enableLevel(Level level) {
+        doReturn(true).when(log).isLevelEnabled(level);
+    }
+
+    private void disableLevel(Level level) {
+        doReturn(false).when(log).isLevelEnabled(level);
+    }
+
 
     public static Stream<Level> levels() {
         List<Level> levels = new ArrayList<>(Arrays.asList(Level.values()));
@@ -84,51 +77,107 @@ class AbstractLogTest {
 
     @ParameterizedTest
     @MethodSource("levels")
-    public void log(Level level) {
-        level.setEnabled(log, false);
-        assertNull(latestLogEntry);
+    public void logLevelEnabled(Level level) {
+        enableLevel(level);
 
-        level.setEnabled(log, true);
+        assertEquals(log.isLevelEnabled(level), level.isEnabled(log));
+    }
+
+    @ParameterizedTest
+    @MethodSource("levels")
+    public void logLevelDisabled(Level level) {
+        disableLevel(level);
+
+        assertEquals(log.isLevelEnabled(level), level.isEnabled(log));
+    }
+
+    @ParameterizedTest
+    @MethodSource("levels")
+    public void log(Level level) {
+        enableLevel(level);
+
         level.log(log, "Test");
 
-        latestLogEntry.assertLevel(level);
-        latestLogEntry.assertContent("Test");
+        verify(log, times(1)).logLevel(
+                eq(level),
+                CharSequenceMatcher.eq("Test")
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("levels")
+    public void logDisabled(Level level) {
+        disableLevel(level);
+
+        level.log(log, "Test");
+
+        verify(log, never()).logLevel(
+                eq(level),
+                CharSequenceMatcher.eq("Test")
+        );
     }
 
     @ParameterizedTest
     @MethodSource("levels")
     public void logException(Level level) {
         RuntimeException e = new RuntimeException();
-        level.setEnabled(log, false);
+        enableLevel(level);
 
         level.log(log, e);
-        assertNull(latestLogEntry);
 
+        verify(log, times(1)).isLevelEnabled(level);
+        verify(log, times(1)).logLevel(
+                eq(level),
+                eq(e)
+        );
 
-        level.setEnabled(log, true);
+    }
+
+    @ParameterizedTest
+    @MethodSource("levels")
+    public void logExceptionDisabled(Level level) {
+        RuntimeException e = new RuntimeException();
+        disableLevel(level);
+
         level.log(log, e);
 
-        latestLogEntry.assertLevel(level);
-        latestLogEntry.assertThrowable(e);
-
+        verify(log, times(1)).isLevelEnabled(level);
+        verify(log, never()).logLevel(
+                eq(level),
+                eq(e)
+        );
     }
 
     @ParameterizedTest
     @MethodSource("levels")
     public void logMessageWithException(Level level) {
         RuntimeException e = new RuntimeException();
-        level.setEnabled(log, false);
-        level.log(log, e);
-        assertNull(latestLogEntry);
+        enableLevel(level);
 
-
-        level.setEnabled(log, true);
         level.log(log, "Test", e);
 
-        latestLogEntry.assertLevel(level);
-        latestLogEntry.assertContent("Test");
-        latestLogEntry.assertThrowable(e);
+        verify(log, times(1)).isLevelEnabled(level);
+        verify(log, times(1)).logLevel(
+                eq(level),
+                CharSequenceMatcher.eq("Test"),
+                eq(e)
+        );
     }
 
+    @ParameterizedTest
+    @MethodSource("levels")
+    public void logMessageWithExceptionDisabled(Level level) {
+        RuntimeException e = new RuntimeException();
+        disableLevel(level);
 
+        level.log(log, "Test", e);
+
+
+        verify(log, times(1)).isLevelEnabled(level);
+        verify(log, never()).logLevel(
+                eq(level),
+                CharSequenceMatcher.eq("Test"),
+                eq(e)
+        );
+    }
 }

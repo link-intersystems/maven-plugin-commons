@@ -16,7 +16,7 @@ public enum Level {
         }
 
         @Override
-        public void setEnabled(AbstractLog log, boolean enabled) {
+        public void setEnabled(AbstractCustomEnablementLog log, boolean enabled) {
         }
 
         @Override
@@ -43,7 +43,7 @@ public enum Level {
         }
 
         @Override
-        public void setEnabled(AbstractLog log, boolean enabled) {
+        public void setEnabled(AbstractCustomEnablementLog log, boolean enabled) {
             log.setErrorEnabled(enabled);
         }
 
@@ -74,7 +74,7 @@ public enum Level {
         }
 
         @Override
-        public void setEnabled(AbstractLog log, boolean enabled) {
+        public void setEnabled(AbstractCustomEnablementLog log, boolean enabled) {
             log.setWarnEnabled(enabled);
         }
 
@@ -109,7 +109,7 @@ public enum Level {
         }
 
         @Override
-        public void setEnabled(AbstractLog log, boolean enabled) {
+        public void setEnabled(AbstractCustomEnablementLog log, boolean enabled) {
             log.setInfoEnabled(enabled);
         }
 
@@ -140,7 +140,7 @@ public enum Level {
         }
 
         @Override
-        public void setEnabled(AbstractLog log, boolean enabled) {
+        public void setEnabled(AbstractCustomEnablementLog log, boolean enabled) {
             log.setDebugEnabled(enabled);
         }
 
@@ -168,7 +168,7 @@ public enum Level {
 
     public abstract boolean isEnabled(Log log);
 
-    public abstract void setEnabled(AbstractLog log, boolean enabled);
+    public abstract void setEnabled(AbstractCustomEnablementLog log, boolean enabled);
 
     public abstract void log(Log log, CharSequence message);
 
