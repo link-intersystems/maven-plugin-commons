@@ -1,17 +1,15 @@
 package com.link_intersystems.maven.plugin.test;
 
+import com.link_intersystems.maven.plugin.test.component.AbstractCoreMavenComponentTestCase;
 import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.apache.maven.artifact.repository.layout.ArtifactRepositoryLayout;
 import org.apache.maven.execution.*;
 import org.apache.maven.plugin.Mojo;
+import org.apache.maven.plugin.MojoExecution;
+import org.apache.maven.plugin.descriptor.MojoDescriptor;
 import org.apache.maven.plugin.logging.SystemStreamLog;
 import org.apache.maven.plugin.testing.AbstractMojoTestCase;
-import org.apache.maven.plugin.testing.stubs.MavenProjectStub;
-import org.apache.maven.project.DefaultProjectBuildingRequest;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
-import org.apache.maven.project.ProjectBuilder;
-import org.apache.maven.project.ProjectBuildingResult;
-import org.apache.maven.repository.LocalArtifactRepository;
 import org.apache.maven.repository.internal.MavenRepositorySystemUtils;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.junit.jupiter.api.AfterEach;
@@ -19,53 +17,34 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.platform.commons.util.AnnotationUtils;
 
-import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.ServiceLoader;
 
 /**
  * @author René Link {@literal <rene.link@link-intersystems.com>}
  */
-public class AbstractMojoTest {
+public class AbstractMojoTest extends AbstractCoreMavenComponentTestCase {
 
     private MojoTestCaseAdapter testCaseAdapter = new MojoTestCaseAdapter();
     private MavenTestProjectInstance mavenTestProject;
     private MavenSession mavenSession;
     private MavenProject mavenProject;
-    private Path repositoryPath;
     private Path projectPath;
+    private ResolutionScope resolutionScope;
 
     @BeforeEach
     protected void setUp(@TempDir Path tmpDir) throws Exception {
         testCaseAdapter.setUp();
 
         projectPath = tmpDir.resolve("project");
-        repositoryPath = tmpDir.resolve(".m2/repository");
 
         mavenTestProject = createTestMavenProject();
         mavenTestProject.init(projectPath.toFile());
-
-        File pomFile = mavenTestProject.getPomFile();
-
-        ProjectBuilder projectBuilder = testCaseAdapter.doLookup(ProjectBuilder.class);
-
-        File localRepositoryPath = repositoryPath.toFile();
-        ArtifactRepositoryLayout layout = testCaseAdapter.doLookup(ArtifactRepositoryLayout.class);
-        LocalArtifactRepository localArtifactRepository = new TestLocalArtifactRepository(localRepositoryPath, layout);
-        mavenSession = testCaseAdapter.newMavenSession(new MavenProjectStub(), localArtifactRepository);
-
-
-        DefaultProjectBuildingRequest request = new DefaultProjectBuildingRequest();
-        request.setRepositorySession(mavenSession.getRepositorySession());
-        request.setLocalRepository(mavenSession.getLocalRepository());
-        ProjectBuildingResult projectBuildingResult = projectBuilder.build(pomFile, request);
-
-        mavenProject = projectBuildingResult.getProject();
-        mavenSession.setCurrentProject(mavenProject);
     }
 
     @AfterEach
@@ -78,13 +57,33 @@ public class AbstractMojoTest {
     }
 
     public MavenProject getMavenProject() {
+        if (mavenProject == null) {
+            mavenProject = getMavenSession().getCurrentProject();
+        }
         return mavenProject;
     }
 
     public MavenSession getMavenSession() {
+        if (mavenSession == null) {
+            try {
+                Properties executionProperties = System.getProperties();
+                ResolutionScope requiredResolution = getResolutionScope();
+                boolean resolveDependencies = !ResolutionScope.NONE.equals(requiredResolution);
+                mavenSession = createMavenSession(mavenTestProject.getPomFile(), executionProperties, false, resolveDependencies);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
         return mavenSession;
     }
 
+    public void setResolutionScope(ResolutionScope resolutionScope) {
+        this.resolutionScope = resolutionScope;
+    }
+
+    public ResolutionScope getResolutionScope() {
+        return resolutionScope;
+    }
 
     protected MavenTestProjectInstance createTestMavenProject() {
         Optional<MavenTestProject> mavenTestProjectOptional = getMavenTestProjectAnnotation();
@@ -158,6 +157,16 @@ public class AbstractMojoTest {
         return (T) mojo;
     }
 
+    protected MojoDescriptor getMojoDescriptor(String goal) {
+        MojoExecution mojoExecution = testCaseAdapter.newMojoExecution(goal);
+        return mojoExecution.getMojoDescriptor();
+    }
+
+    @Override
+    protected String getProjectsDirectory() {
+        return getProjectPath().toString();
+    }
+
     private class MojoTestCaseAdapter extends AbstractMojoTestCase {
         @Override
         public void setUp() throws Exception {
@@ -182,6 +191,11 @@ public class AbstractMojoTest {
         @Override
         public Mojo lookupConfiguredMojo(MavenProject project, String goal) throws Exception {
             return super.lookupConfiguredMojo(mavenSession, newMojoExecution(goal));
+        }
+
+        @Override
+        public MojoExecution newMojoExecution(String goal) {
+            return super.newMojoExecution(goal);
         }
 
         @Override

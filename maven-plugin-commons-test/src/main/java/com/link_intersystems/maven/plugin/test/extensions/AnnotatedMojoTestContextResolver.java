@@ -37,11 +37,14 @@ abstract class AnnotatedMojoTestContextResolver<T, A extends Annotation> impleme
     public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
         MojoTestContext mojoTestContext = MojoTestContextLifecycle.getMojoTestContext(extensionContext, parameterContext);
 
+        Parameter parameter = parameterContext.getParameter();
+
         if (mojoTestContext == null) {
-            throw new ParameterResolutionException("Can not resolve parameter " + parameterContext.getParameter() + ". No MojoTestContext available. Maybe there is no @MavenTestProject annotation on either the test method, class or superclass.");
+            throw new ParameterResolutionException("Can not resolve parameter " + parameter + ". No MojoTestContext available. Maybe there is no @MavenTestProject annotation on either the test method, class or superclass.");
         }
 
-        A annotation = parameterContext.getParameter().getAnnotation(annotationType);
+        A annotation = parameter.getAnnotation(annotationType);
+        Class<?> type = parameter.getType();
 
         return resolve(mojoTestContext, annotation);
     }

@@ -12,9 +12,10 @@ import static java.util.Arrays.asList;
  */
 public class MojoTest implements ParameterResolver, BeforeAllCallback, BeforeEachCallback, AfterEachCallback, AfterAllCallback {
 
-    private MojoResolver mojoResolver = new MojoResolver();
-    private MavenProjectResolver projectResolver = new MavenProjectResolver();
-    private MavenSessionResolver sessionResolver = new MavenSessionResolver();
+    private MojoParameterResolver mojoResolver = new MojoParameterResolver();
+    private MavenProjectParameterResolver projectResolver = new MavenProjectParameterResolver();
+    private MavenSessionParameterResolver sessionResolver = new MavenSessionParameterResolver();
+
     private MojoTestContextLifecycle testContextLifecycle = new MojoTestContextLifecycle();
 
     private List<Extension> extensions = asList(

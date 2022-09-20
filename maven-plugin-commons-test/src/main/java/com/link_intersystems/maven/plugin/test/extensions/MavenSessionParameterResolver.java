@@ -5,9 +5,9 @@ import org.apache.maven.execution.MavenSession;
 /**
  * @author René Link {@literal <rene.link@link-intersystems.com>}
  */
-class MavenSessionResolver extends MojoTestContextResolver {
+class MavenSessionParameterResolver extends MojoTestContextResolver {
 
-    public MavenSessionResolver() {
+    public MavenSessionParameterResolver() {
         super(MavenSession.class);
     }
 

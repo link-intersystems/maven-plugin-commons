@@ -7,9 +7,9 @@ import org.junit.jupiter.api.extension.ParameterResolutionException;
 /**
  * @author René Link {@literal <rene.link@link-intersystems.com>}
  */
-class MojoResolver extends AnnotatedMojoTestContextResolver<Mojo, TestMojo> {
+class MojoParameterResolver extends AnnotatedMojoTestContextResolver<Mojo, TestMojo> {
 
-    public MojoResolver() {
+    public MojoParameterResolver() {
         super(Mojo.class, TestMojo.class);
     }
 

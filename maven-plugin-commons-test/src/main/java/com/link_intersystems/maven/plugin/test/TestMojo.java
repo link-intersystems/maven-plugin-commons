@@ -1,5 +1,7 @@
 package com.link_intersystems.maven.plugin.test;
 
+import org.apache.maven.plugins.annotations.ResolutionScope;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -15,4 +17,8 @@ public @interface TestMojo {
     String goal();
 
     boolean debugEnabled() default false;
+
+    ResolutionScope requiresDependencyResolution() default ResolutionScope.NONE;
+
+    ResolutionScope requiresDependencyCollection() default ResolutionScope.NONE;
 }

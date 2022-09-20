@@ -18,11 +18,12 @@
         <module>maven-plugin-commons-test</module>
         <module>maven-plugin-commons-test-tests</module>
         <module>maven-mojo-commons</module>
+        <module>maven-plugin-core-test</module>
     </modules>
 
 
     <properties>
-        <mavenVersion>3.2.5</mavenVersion>
+        <mavenVersion>3.8.6</mavenVersion>
         <mavenPluginToolsVersion>3.5.2</mavenPluginToolsVersion>
 
         <lis-commons.version>1.8.0</lis-commons.version>
