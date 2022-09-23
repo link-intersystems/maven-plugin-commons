@@ -1,6 +1,6 @@
 package com.link_intersystems.maven.plugin.test;
 
-import com.link_intersystems.maven.plugin.test.extensions.MojoTest;
+import com.link_intersystems.maven.plugin.test.extensions.MojoTestExtension;
 import org.apache.maven.project.MavenProject;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
  * @author René Link {@literal <rene.link@link-intersystems.com>}
  */
 
-@ExtendWith(MojoTest.class)
+@ExtendWith(MojoTestExtension.class)
 class SimpleMojoSuperClassLevelTest extends AbstractSimpleMojoSuperClassLevelTest {
 
     @Test

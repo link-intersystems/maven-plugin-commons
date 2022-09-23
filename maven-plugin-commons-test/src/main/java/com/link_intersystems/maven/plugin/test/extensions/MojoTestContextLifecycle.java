@@ -2,6 +2,8 @@ package com.link_intersystems.maven.plugin.test.extensions;
 
 import com.link_intersystems.maven.plugin.test.MavenTestProject;
 import com.link_intersystems.maven.plugin.test.TestMojo;
+import com.link_intersystems.maven.plugin.test.TestMojoConfig;
+import org.apache.maven.plugin.Mojo;
 import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.testing.PlexusExtension;
 import org.junit.jupiter.api.extension.*;
@@ -81,20 +83,23 @@ class MojoTestContextLifecycle implements BeforeAllCallback, BeforeEachCallback,
 
 
         try {
-            TestMojo testMojo = null;
+            TestMojoConfig testMojoConfig = null;
             Method method = testMethod.get();
-            findTestMojo:
-            for (Annotation[] parameterAnnotation : method.getParameterAnnotations()) {
-                for (Annotation annotation : parameterAnnotation) {
+            Class<?>[] parameterTypes = method.getParameterTypes();
+
+            Annotation[][] parameterAnnotations = method.getParameterAnnotations();
+            findTestMojo: for (int i = 0; i < parameterAnnotations.length; i++) {
+                for (Annotation annotation : parameterAnnotations[i]) {
                     if (TestMojo.class.isInstance(annotation)) {
-                        testMojo = TestMojo.class.cast(annotation);
+                        Class<? extends Mojo> mojoType = (Class<? extends Mojo>) parameterTypes[i];
+                        testMojoConfig = new TestMojoConfig(mojoType,TestMojo.class.cast(annotation));
                         break findTestMojo;
                     }
                 }
+
             }
 
-
-            mojoTestContext.setUp(mavenTestProject, testMojo);
+            mojoTestContext.setUp(mavenTestProject, testMojoConfig);
 
         } catch (Exception e) {
             throw new ParameterResolutionException("Unable to setup " + MavenTestProject.class.getName(), e);

@@ -1,6 +1,6 @@
 package com.link_intersystems.maven.plugin.test;
 
-import com.link_intersystems.maven.plugin.test.extensions.MojoTest;
+import com.link_intersystems.maven.plugin.test.extensions.MojoTestExtension;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author René Link {@literal <rene.link@link-intersystems.com>}
  */
 
-@ExtendWith(MojoTest.class)
+@ExtendWith(MojoTestExtension.class)
 @MavenTestProject("com/link_intersystems/maven/plugin/test/simpleProject")
 class SimpleMojoTest {
 

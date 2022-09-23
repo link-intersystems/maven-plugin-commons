@@ -1,18 +1,11 @@
 package com.link_intersystems.maven.plugin.test;
 
 import com.link_intersystems.maven.plugin.test.component.AbstractCoreMavenComponentTestCase;
-import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.apache.maven.execution.*;
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.Mojo;
-import org.apache.maven.plugin.MojoExecution;
-import org.apache.maven.plugin.descriptor.MojoDescriptor;
 import org.apache.maven.plugin.logging.SystemStreamLog;
-import org.apache.maven.plugin.testing.AbstractMojoTestCase;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
-import org.apache.maven.repository.internal.MavenRepositorySystemUtils;
-import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.platform.commons.util.AnnotationUtils;
@@ -20,7 +13,6 @@ import org.junit.platform.commons.util.AnnotationUtils;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.ServiceLoader;
@@ -30,16 +22,15 @@ import java.util.ServiceLoader;
  */
 public class AbstractMojoTest extends AbstractCoreMavenComponentTestCase {
 
-    private MojoTestCaseAdapter testCaseAdapter = new MojoTestCaseAdapter();
     private MavenTestProjectInstance mavenTestProject;
     private MavenSession mavenSession;
     private MavenProject mavenProject;
     private Path projectPath;
     private ResolutionScope resolutionScope;
+    private MojoUtil mojoUtil;
 
     @BeforeEach
     protected void setUp(@TempDir Path tmpDir) throws Exception {
-        testCaseAdapter.setUp();
 
         projectPath = tmpDir.resolve("project");
 
@@ -47,9 +38,11 @@ public class AbstractMojoTest extends AbstractCoreMavenComponentTestCase {
         mavenTestProject.init(projectPath.toFile());
     }
 
-    @AfterEach
-    protected void tearDown() throws Exception {
-        testCaseAdapter.tearDown();
+    protected MojoUtil getMojoUtil() {
+        if (mojoUtil == null) {
+            mojoUtil = new MojoUtil(getContainer());
+        }
+        return mojoUtil;
     }
 
     public Path getProjectPath() {
@@ -130,24 +123,16 @@ public class AbstractMojoTest extends AbstractCoreMavenComponentTestCase {
                 " Make sure that a valid provider is registerd via META-INF/services/" + MavenTestProjectInstanceProvider.class.getName());
     }
 
-    protected <T extends Mojo> T lookupConfiguredMojo(Class<T> mojoClass) throws Exception {
-        return lookupConfiguredMojo(mojoClass, false);
-    }
-
     protected <T extends Mojo> T lookupConfiguredMojo(Class<T> mojoClass, boolean debugEnabled) throws Exception {
         Optional<org.apache.maven.plugins.annotations.Mojo> mojoAnnotation = AnnotationUtils.findAnnotation(mojoClass, org.apache.maven.plugins.annotations.Mojo.class);
         String goal = mojoAnnotation.map(org.apache.maven.plugins.annotations.Mojo::name).orElseThrow(() -> new IllegalStateException(mojoClass + " does not have a @Mojo annotaiton."));
         return lookupConfiguredMojo(goal, debugEnabled);
     }
 
-    protected <T extends Mojo> T lookupConfiguredMojo(String goal) throws Exception {
-        return lookupConfiguredMojo(goal, false);
-    }
-
     @SuppressWarnings("unchecked")
     protected <T extends Mojo> T lookupConfiguredMojo(String goal, boolean debugEnabled) throws Exception {
         MavenProject mavenProject = getMavenProject();
-        Mojo mojo = testCaseAdapter.lookupConfiguredMojo(mavenProject, goal);
+        Mojo mojo = mojoUtil.lookupConfiguredMojo(mavenProject, goal);
         mojo.setLog(new SystemStreamLog() {
             @Override
             public boolean isDebugEnabled() {
@@ -157,50 +142,4 @@ public class AbstractMojoTest extends AbstractCoreMavenComponentTestCase {
         return (T) mojo;
     }
 
-    protected MojoDescriptor getMojoDescriptor(String goal) {
-        MojoExecution mojoExecution = testCaseAdapter.newMojoExecution(goal);
-        return mojoExecution.getMojoDescriptor();
-    }
-
-    @Override
-    protected String getProjectsDirectory() {
-        return getProjectPath().toString();
-    }
-
-    private class MojoTestCaseAdapter extends AbstractMojoTestCase {
-        @Override
-        public void setUp() throws Exception {
-            super.setUp();
-        }
-
-        public <T> T doLookup(Class<T> role) throws ComponentLookupException {
-            return lookup(role);
-        }
-
-        public MavenSession newMavenSession(MavenProject project, ArtifactRepository localArtifactRepository) {
-            MavenExecutionRequest request = new DefaultMavenExecutionRequest();
-            request.setLocalRepository(localArtifactRepository);
-            MavenExecutionResult result = new DefaultMavenExecutionResult();
-
-            MavenSession session = new MavenSession(getContainer(), MavenRepositorySystemUtils.newSession(), request, result);
-            session.setCurrentProject(project);
-            session.setProjects(Arrays.asList(project));
-            return session;
-        }
-
-        @Override
-        public Mojo lookupConfiguredMojo(MavenProject project, String goal) throws Exception {
-            return super.lookupConfiguredMojo(mavenSession, newMojoExecution(goal));
-        }
-
-        @Override
-        public MojoExecution newMojoExecution(String goal) {
-            return super.newMojoExecution(goal);
-        }
-
-        @Override
-        public void tearDown() throws Exception {
-            getContainer().dispose();
-        }
-    }
 }

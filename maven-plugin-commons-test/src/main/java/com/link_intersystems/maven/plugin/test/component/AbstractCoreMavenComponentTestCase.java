@@ -19,9 +19,6 @@ package com.link_intersystems.maven.plugin.test.component;
  * under the License.
  */
 
-import com.link_intersystems.maven.plugin.test.TestMojo;
-import com.link_intersystems.maven.plugin.test.extensions.MojoTest;
-import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.InvalidRepositoryException;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.execution.DefaultMavenExecutionRequest;
@@ -29,8 +26,9 @@ import org.apache.maven.execution.DefaultMavenExecutionResult;
 import org.apache.maven.execution.MavenExecutionRequest;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.internal.aether.DefaultRepositorySystemSessionFactory;
-import org.apache.maven.model.*;
-import org.apache.maven.plugin.descriptor.MojoDescriptor;
+import org.apache.maven.model.Model;
+import org.apache.maven.model.Repository;
+import org.apache.maven.model.RepositoryPolicy;
 import org.apache.maven.project.DefaultProjectBuildingRequest;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuildingRequest;
@@ -38,9 +36,7 @@ import org.apache.maven.repository.RepositorySystem;
 import org.apache.maven.repository.internal.MavenRepositorySystemUtils;
 import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.testing.PlexusTest;
-import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.aether.DefaultRepositorySystemSession;
-import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.internal.impl.SimpleLocalRepositoryManagerFactory;
 import org.eclipse.aether.repository.LocalRepository;
 
@@ -65,18 +61,8 @@ public abstract class AbstractCoreMavenComponentTestCase {
     @Inject
     protected org.apache.maven.project.ProjectBuilder projectBuilder;
 
-    abstract protected String getProjectsDirectory();
-
     protected PlexusContainer getContainer() {
         return container;
-    }
-
-    protected File getProject(String name)
-            throws Exception {
-        File source = new File(new File(getBasedir(), getProjectsDirectory()), name);
-        File target = new File(new File(getBasedir(), "target"), name);
-        FileUtils.copyDirectoryStructureIfModified(source, target);
-        return new File(target, "pom.xml");
     }
 
     protected MavenExecutionRequest createMavenExecutionRequest(File pom)
@@ -98,21 +84,6 @@ public abstract class AbstractCoreMavenComponentTestCase {
         }
 
         return request;
-    }
-
-    // layer the creation of a project builder configuration with a request, but this will need to be
-    // a Maven subclass because we don't want to couple maven to the project builder which we need to
-    // separate.
-    protected MavenSession createMavenSession(File pom)
-            throws Exception {
-        return createMavenSession(pom, new Properties());
-    }
-
-    protected MavenSession createMavenSession(File pom, Properties executionProperties)
-            throws Exception {
-        TestMojo testMojo = null;
-
-        return createMavenSession(pom, executionProperties, false, true);
     }
 
     protected MavenSession createMavenSession(File pom, Properties executionProperties, boolean includeModules, boolean resolveDependencies)
@@ -211,81 +182,4 @@ public abstract class AbstractCoreMavenComponentTestCase {
         return repositorySystem.createLocalRepository(repoDir);
     }
 
-    protected class ProjectBuilder {
-        private MavenProject project;
-
-        public ProjectBuilder(MavenProject project) {
-            this.project = project;
-        }
-
-        public ProjectBuilder(String groupId, String artifactId, String version) {
-            Model model = new Model();
-            model.setModelVersion("4.0.0");
-            model.setGroupId(groupId);
-            model.setArtifactId(artifactId);
-            model.setVersion(version);
-            model.setBuild(new Build());
-            project = new MavenProject(model);
-        }
-
-        public ProjectBuilder setGroupId(String groupId) {
-            project.setGroupId(groupId);
-            return this;
-        }
-
-        public ProjectBuilder setArtifactId(String artifactId) {
-            project.setArtifactId(artifactId);
-            return this;
-        }
-
-        public ProjectBuilder setVersion(String version) {
-            project.setVersion(version);
-            return this;
-        }
-
-        // Dependencies
-        //
-        public ProjectBuilder addDependency(String groupId, String artifactId, String version, String scope) {
-            return addDependency(groupId, artifactId, version, scope, (Exclusion) null);
-        }
-
-        public ProjectBuilder addDependency(String groupId, String artifactId, String version, String scope, Exclusion exclusion) {
-            return addDependency(groupId, artifactId, version, scope, null, exclusion);
-        }
-
-        public ProjectBuilder addDependency(String groupId, String artifactId, String version, String scope, String systemPath) {
-            return addDependency(groupId, artifactId, version, scope, systemPath, null);
-        }
-
-        public ProjectBuilder addDependency(String groupId, String artifactId, String version, String scope, String systemPath, Exclusion exclusion) {
-            Dependency d = new Dependency();
-            d.setGroupId(groupId);
-            d.setArtifactId(artifactId);
-            d.setVersion(version);
-            d.setScope(scope);
-
-            if (systemPath != null && scope.equals(Artifact.SCOPE_SYSTEM)) {
-                d.setSystemPath(systemPath);
-            }
-
-            if (exclusion != null) {
-                d.addExclusion(exclusion);
-            }
-
-            project.getDependencies().add(d);
-
-            return this;
-        }
-
-        // Plugins
-        //
-        public ProjectBuilder addPlugin(Plugin plugin) {
-            project.getBuildPlugins().add(plugin);
-            return this;
-        }
-
-        public MavenProject get() {
-            return project;
-        }
-    }
 }

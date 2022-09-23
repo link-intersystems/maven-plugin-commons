@@ -4,9 +4,11 @@ import com.link_intersystems.maven.logging.PrintWriterLog;
 import com.link_intersystems.maven.plugin.test.AbstractMojoTest;
 import com.link_intersystems.maven.plugin.test.MavenTestProject;
 import com.link_intersystems.maven.plugin.test.TestMojo;
+import com.link_intersystems.maven.plugin.test.TestMojoConfig;
 import org.apache.maven.plugin.Mojo;
 import org.codehaus.plexus.DefaultPlexusContainer;
 import org.codehaus.plexus.PlexusContainer;
+import org.junit.jupiter.api.AfterEach;
 
 import java.io.File;
 import java.io.IOException;
@@ -65,13 +67,19 @@ public class MojoTestContext extends AbstractMojoTest {
         return Optional.of(mavenTestProject);
     }
 
-    public void setUp(MavenTestProject mavenTestProject, TestMojo testMojo) throws Exception {
+    public void setUp(MavenTestProject mavenTestProject, TestMojoConfig testMojoConfig) throws Exception {
         this.mavenTestProject = mavenTestProject;
+
+        tempDirectory = Files.createTempDirectory("MavenTestProject");
+        setUp(tempDirectory);
+
+        Class<? extends Mojo> mojoType = testMojoConfig.getMojoType();
+        getMojoUtil().registerPluginArtifact(mojoType);
+
+        TestMojo testMojo = testMojoConfig.getTestMojo();
         if (testMojo != null) {
             setResolutionScope(testMojo.requiresDependencyResolution());
         }
-        tempDirectory = Files.createTempDirectory("MavenTestProject");
-        setUp(tempDirectory);
     }
 
     public Mojo getMojo(TestMojo testMojo) throws Exception {
@@ -84,8 +92,8 @@ public class MojoTestContext extends AbstractMojoTest {
         return mojo;
     }
 
+    @AfterEach
     public void tearDown() throws Exception {
-        super.tearDown();
         deleteAllFilesAndDirectories(tempDirectory);
     }
 

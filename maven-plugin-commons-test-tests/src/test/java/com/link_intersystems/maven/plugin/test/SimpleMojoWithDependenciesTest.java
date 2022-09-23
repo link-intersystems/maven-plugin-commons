@@ -1,14 +1,12 @@
 package com.link_intersystems.maven.plugin.test;
 
-import com.link_intersystems.maven.plugin.test.extensions.MojoTest;
+import com.link_intersystems.maven.plugin.test.extensions.MojoTestExtension;
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -22,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author René Link {@literal <rene.link@link-intersystems.com>}
  */
 
-@ExtendWith(MojoTest.class)
+@ExtendWith(MojoTestExtension.class)
 @MavenTestProject("com/link_intersystems/maven/plugin/test/with-dependencies")
 class SimpleMojoWithDependenciesTest {
 

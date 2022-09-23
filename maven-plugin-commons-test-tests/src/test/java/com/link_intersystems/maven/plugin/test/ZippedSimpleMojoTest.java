@@ -1,6 +1,6 @@
 package com.link_intersystems.maven.plugin.test;
 
-import com.link_intersystems.maven.plugin.test.extensions.MojoTest;
+import com.link_intersystems.maven.plugin.test.extensions.MojoTestExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
  */
 
 @MavenTestProject("com/link_intersystems/maven/plugin/test/simpleProject.zip")
-@ExtendWith(MojoTest.class)
+@ExtendWith(MojoTestExtension.class)
 class ZippedSimpleMojoTest {
 
     @Test
