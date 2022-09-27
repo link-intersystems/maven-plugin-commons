@@ -26,7 +26,7 @@
         <mavenVersion>3.8.6</mavenVersion>
         <mavenPluginToolsVersion>3.5.2</mavenPluginToolsVersion>
 
-        <lis-commons.version>1.8.0</lis-commons.version>
+        <lis-commons.version>1.8.2</lis-commons.version>
         <slf4j.version>1.7.36</slf4j.version>
 
         <junit.jupiter.version>5.8.2</junit.jupiter.version>
